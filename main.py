@@ -1,7 +1,11 @@
-
+import os
+import time
 import random
 from generator import create_unsolved
 from generator import is_valid
+
+def clear_console():
+    os.system('cls' if os.name == 'nt' else 'clear')
 
 
 def print_sudoku(grid):
@@ -50,18 +54,18 @@ def print_sudoku_highlighted(grid,selectedRow,selectedCol):
     
 def solve():
     solvedCells = []
-    isSolved = False
-    while isSolved == False:
-        print(solvedCells)
+    triesLeft = 4
+    while True:
+        clear_console()
         print_sudoku(Unsolved)
         #back to menu
         selectedCell = input("Enter which cell you want to select \"<row><column>\" :: ")
         if selectedCell in ["exit","restart","end"]:
+            clear_console()
             break
         #undo
         elif selectedCell == "undo":
             Unsolved[solvedCells[-1][0]][solvedCells[-1][1]] = 0
-            print("Undo Successfull!!")
             continue
         
         #turn row and col into indexes
@@ -73,9 +77,11 @@ def solve():
         #checks if selected cell is already solved or not
         if (Unsolved[row][col]) != 0:
             print("solved already")
+            time.sleep(1.5)
             continue
         
         #prints sudoku with selected cell highlighted
+        clear_console()
         print_sudoku_highlighted(Unsolved, row+1, col)
         
         #takes value for the selected cell
@@ -83,11 +89,19 @@ def solve():
         
         #checks if it is valid and then inputs the value
         if is_valid(Unsolved,row,col,value):
-            print("It is valid")
             Unsolved[row][col] = value
             solvedCells.append([row,col])
         else:
             print("It is Not valid")
+            triesLeft-=1
+            print(f"{triesLeft} Tries Left!!")
+            time.sleep(1.5)
+            clear_console()
+            if triesLeft == 0:
+                print("You Failed!!")
+                time.sleep(3)
+                break
+            
             
         #checks if it is solved and ends
         unsolvedCells = 0
@@ -96,13 +110,15 @@ def solve():
                 if j == 0:
                     unsolvedCells+=1
         if unsolvedCells == 0:
+            clear_console()
+            print(Unsolved)
             print("SUDOKU SOLVED!!!!!!!!!!")
             print("SUDOKU SOLVED!!!!!!!!!!")
             print("SUDOKU SOLVED!!!!!!!!!!")
             print("SUDOKU SOLVED!!!!!!!!!!")
             print("SUDOKU SOLVED!!!!!!!!!!")
             break
-        
+
 
 while True:
     
@@ -133,5 +149,4 @@ while True:
             print("Invalid choice. Exiting!")
     
     Unsolved = create_unsolved(emptyCells)
-    unsolvedBackup = Unsolved
     solve()
